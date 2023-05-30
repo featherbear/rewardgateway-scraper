@@ -21,7 +21,6 @@ enum Files {
     offers = "offers.json"
 }
 
-
 type MerchantData = {
     retailer_id: string,
     merchant: string,
@@ -30,7 +29,8 @@ type MerchantData = {
     value: string
 }
 
-async function run(mode: 1 | 2) {
+
+async function run(mode: 'merchants' | 'offers') {
     async function initialise() {
         let instance = await puppeteer.launch({ waitForInitialPage: false, headless: false })
         let page = await (instance.pages().then(pages => pages[0]) || instance.newPage())
@@ -227,8 +227,9 @@ async function run(mode: 1 | 2) {
         fs.writeFileSync(Files.offers, JSON.stringify(result, null, 2))
 
         puppeteerInitialsedResult[0].close()
+    } else {
+        logger.fatal({command: mode}, "Unknown command")
     }
-
 }
 
-run(2)
+run(<any>process.argv[1])

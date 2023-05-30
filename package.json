@@ -1,7 +1,6 @@
 {
   "name": "rewardgateway-scraper",
   "version": "1.0.0",
-  "main": "index.js",
   "author": "Andrew Wong <andrew.j.wong@outlook.com>",
   "license": "MIT",
   "dependencies": {
@@ -11,7 +10,8 @@
     "sucrase": "^3.32.0"
   },
   "scripts": {
-    "start": "sucrase-node main.ts"
+    "merchants": "sucrase-node main.ts merchants",
+    "offers": "sucrase-node main.ts offers"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.8"
