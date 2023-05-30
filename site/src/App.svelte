@@ -66,35 +66,39 @@
 <main>
   <h1>{siteOptions.title}</h1>
 
-  <input
-    bind:value={searchValue}
-    class="searchBar"
-    placeholder="Search for merchant"
-  />
+  <div class="searchContainer">
+    <input
+      bind:value={searchValue}
+      class="search"
+      placeholder="Search for merchant"
+    />
+  </div>
 
-  {#each searchResults as merchant (merchant.retailer_id)}
-    <div class="card">
-      <div class="merchant">
-        <div class="logoContainer">
-          <img src={merchant.logo} alt="logo for {merchant.merchant}" />
+  <section>
+    {#each searchResults as merchant (merchant.retailer_id)}
+      <div class="card">
+        <div class="merchant">
+          <div class="logoContainer">
+            <img src={merchant.logo} alt="logo for {merchant.merchant}" />
+          </div>
+          <div class="name">{merchant.merchant}</div>
         </div>
-        <div class="name">{merchant.merchant}</div>
+        {#if offers[merchant.retailer_id]?.length > 0}
+          <section class="offers">
+            {#each offers[merchant.retailer_id] as entry}
+              <div class="offer">
+                {entry.category} - {entry.value}
+              </div>
+            {/each}
+          </section>
+        {:else}
+          No offers
+        {/if}
       </div>
-      {#if offers[merchant.retailer_id]?.length > 0}
-        <section class="offers">
-          {#each offers[merchant.retailer_id] as entry}
-            <div class="offer">
-              {entry.category} - {entry.value}
-            </div>
-          {/each}
-        </section>
-      {:else}
-        No offers
-      {/if}
-    </div>
-  {:else}
-    No merchants found
-  {/each}
+    {:else}
+      No merchants found
+    {/each}
+  </section>
 </main>
 
 <style lang="scss">
@@ -117,19 +121,27 @@
     }
   }
 
-  .searchBar {
-    width: 100%;
-    text-align: center;
-    font-size: 1.6em;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+  $clamping: clamp(320px, 80vw, 760px);
+  .searchContainer {
+    position: sticky;
+    top: 0;
+    // background-color: white;
+    // border-bottom: $borderThickness dotted $borderColour;
+
+    padding: 2px 0;
+
+    .search {
+      width: $clamping;
+      text-align: center;
+      font-size: 1.6em;
+      padding: 10px 0;
+    }
   }
 
   .card {
     padding: 0;
 
-    width: clamp(320px, 80vw, 760px);
+    width: $clamping;
 
     &:not(:last-child) {
       margin-bottom: 10px;
