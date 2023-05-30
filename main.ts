@@ -57,7 +57,7 @@ async function run(mode: 'merchants' | 'offers') {
         return [instance, page] as const
     }
 
-    if (mode == 1) {
+    if (mode == 'merchants') {
         /**
          * Scrape merchants
          */
@@ -107,9 +107,9 @@ async function run(mode: 'merchants' | 'offers') {
         instance.close()
     }
 
-    else if (mode == 2) {
+    else if (mode == 'offers') {
         /**
-         * Deep scrape merchants
+         * Scrape offers from merchants
         */
         let merchants: MerchantData[] = []
         try {
@@ -124,7 +124,7 @@ async function run(mode: 'merchants' | 'offers') {
         /**
          * Rate limit protection is hard, at least we tried
          */
-        const workers = 2
+        const workers = 1
         const constantDelay = 0;
 
         let batches: Array<MerchantData[]> = []
@@ -187,7 +187,7 @@ async function run(mode: 'merchants' | 'offers') {
                 let response = await worker.goto(getAddress(`Merchant?m=${merchant.retailer_id}`))
                 if (response?.status() != 200) {
                     // Probably rate-limited
-                    logger.warn({ merchant: merchant.merchant, id: merchant.retailer_id, worker: idx }, "Rate limit encountered")
+                    logger.warn({ merchant: merchant.merchant, id: merchant.retailer_id, worker: idx, rateLimit }, "Rate limit encountered")
                     if (rateLimit < 16) {
                         rateLimit *= 2;
                         logger.debug({ rateLimit, worker: idx }, "Rate limit incremented")
@@ -204,7 +204,10 @@ async function run(mode: 'merchants' | 'offers') {
 
                 let offers = await worker.$$('div.offers_swappable_container > div.offers_swappable_content')
                 let result = await Promise.all(offers.map(section => section.evaluate((el) => {
-                    let category = el.querySelector('h2.retailer_offer_sections')!.textContent!.trim()
+                    let sections = el.querySelector('h2.retailer_offer_sections')
+                    if (!sections) return []
+
+                    let category = sections.textContent!.trim()
 
                     let offers: { category: string, value: string }[] = []
                     el.querySelectorAll('div.offer_block').forEach(el => {
@@ -232,4 +235,4 @@ async function run(mode: 'merchants' | 'offers') {
     }
 }
 
-run(<any>process.argv[1])
+run(<any>process.argv[2])
