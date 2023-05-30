@@ -1,4 +1,5 @@
 <script lang="ts">
+  // https://codepen.io/alvarotrigo/pen/oNoJePo
   export let checked: boolean;
 </script>
 
