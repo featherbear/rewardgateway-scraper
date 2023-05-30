@@ -95,6 +95,7 @@
             <img src={merchant.logo} alt="logo for {merchant.merchant}" />
           </div>
           <div class="name">{merchant.merchant}</div>
+          <div class="description">{merchant.description}</div>
         </div>
         {#if offers[merchant.retailer_id]?.length > 0}
           <section class="offers">
@@ -128,6 +129,10 @@
       border-bottom-left-radius: $borderRadius;
       border-bottom-right-radius: $borderRadius;
       border-bottom: $borderThickness dotted $borderColour;
+
+      .logoContainer + div {
+        border-left: $borderThickness dotted $borderColour;
+      }
     }
 
     .offer:not(:last-child) {
@@ -140,7 +145,7 @@
     position: sticky;
     top: 0;
 
-    background-color: #3B3B3B;
+    background-color: #3b3b3b;
     @media (prefers-color-scheme: light) {
       background-color: white;
     }
@@ -185,18 +190,38 @@
       > .name {
         font-size: 1.6em;
         font-weight: bold;
+        min-width: 200px;
+        text-align: left;
       }
+
       > .logoContainer {
         display: inherit;
         height: 50px;
         width: 80px;
         margin-right: 20px;
+
+        + div {
+          padding-left: 5px;
+        }
+
         user-select: none;
         pointer-events: none;
 
         > img {
           object-fit: contain;
         }
+      }
+
+      > .description {
+        font-size: 0.8em;
+        font-style: italic;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-align: left;
+        padding-left: 40px;
+        flex: 1;
       }
     }
 
@@ -218,7 +243,7 @@
           }
         }
         &:nth-child(2n + 1) {
-          background-color: lighten(#3B3B3B, 5%);
+          background-color: lighten(#3b3b3b, 5%);
           @media (prefers-color-scheme: light) {
             background-color: darken(white, 5%);
           }
