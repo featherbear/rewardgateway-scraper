@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { createFuse } from "./lib/fuse";
+  import ToggleButton from "./ToggleButton.svelte";
 
   type MerchantData = {
     retailer_id: string;
@@ -16,12 +17,14 @@
 
   let fuse = createFuse<MerchantData>([], ["merchant", "retailer_id"]);
   let merchants: MerchantData[] = [];
+  let merchantsSorted: MerchantData[] = [];
   let offers: { [retailer_id: string]: Array<OfferData> } = {};
 
   let siteOptions = {
     merchantsAddress: null,
     offersAddress: null,
     title: "RewardGateway Corporate Program",
+    sortAlpha: false,
   };
 
   onMount(async () => {
@@ -42,7 +45,10 @@
     merchants = await fetch(siteOptions.merchantsAddress)
       .then((r) => r.json())
       .catch(() => []);
-    merchants.sort((a, b) => a.merchant.localeCompare(b.merchant));
+    merchantsSorted = [...merchants].sort((a, b) =>
+      a.merchant.localeCompare(b.merchant)
+    );
+
     fuse.setCollection(merchants);
 
     offers = await fetch(siteOptions.offersAddress)
@@ -53,9 +59,10 @@
   let searchValue: string = "";
   let searchResults: MerchantData[] = [];
   $: {
+    let source = siteOptions.sortAlpha ? merchantsSorted : merchants;
     searchResults = searchValue
-      ? fuse.search(searchValue).map(({ item }) => item)
-      : merchants;
+      ? fuse.search(searchValue, { limit: 50 }).map(({ item }) => item)
+      : source;
   }
 </script>
 
@@ -67,14 +74,20 @@
   <h1>{siteOptions.title}</h1>
 
   <div class="searchContainer">
-    <input
-      bind:value={searchValue}
-      class="search"
-      placeholder="Search for merchant"
-    />
+    <div>
+      <input
+        bind:value={searchValue}
+        class="search"
+        placeholder="Search for merchant"
+      />
+      <div>
+        Sort alphabetically
+        <ToggleButton bind:checked={siteOptions.sortAlpha} />
+      </div>
+    </div>
   </div>
 
-  <section>
+  <section class="content">
     {#each searchResults as merchant (merchant.retailer_id)}
       <div class="card">
         <div class="merchant">
@@ -109,6 +122,7 @@
   .card {
     border: $borderThickness solid $borderColour;
     border-radius: $borderRadius;
+    box-sizing: border-box;
 
     .merchant {
       border-bottom-left-radius: $borderRadius;
@@ -125,19 +139,30 @@
   .searchContainer {
     position: sticky;
     top: 0;
-    // background-color: white;
-    // border-bottom: $borderThickness dotted $borderColour;
+    background-color: white;
+    width: $clamping;
 
-    padding: 2px 0;
+    > div {
+      border: 1px solid black;
+      display: flex;
+      flex-direction: row;
+      background-color: white;
+      // box-shadow: 0 10px 20px -8px #c5d6d6;
 
-    .search {
-      width: $clamping;
-      text-align: center;
-      font-size: 1.6em;
-      padding: 10px 0;
+      .search {
+        flex: 1;
+        outline: none;
+        border: none;
+        text-align: center;
+        font-size: 1.6em;
+        padding: 10px 0;
+      }
     }
   }
 
+  .content {
+    margin-top: 20px;
+  }
   .card {
     padding: 0;
 
