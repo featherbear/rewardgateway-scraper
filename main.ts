@@ -124,7 +124,7 @@ async function run(mode: 'merchants' | 'offers') {
         /**
          * Rate limit protection is hard, at least we tried
          */
-        const workers = 1
+        const workers = 5
         const constantDelay = 0;
 
         let batches: Array<MerchantData[]> = []
@@ -169,7 +169,7 @@ async function run(mode: 'merchants' | 'offers') {
             return new Promise((resolve, reject) => setTimeout(() => resolve(), timeout))
         }
 
-        let result = {}
+        let offers = {}
 
         // Exponential back-off
         let rateLimit = 1;
@@ -202,8 +202,7 @@ async function run(mode: 'merchants' | 'offers') {
                     }
                 }
 
-                let offers = await worker.$$('div.offers_swappable_container > div.offers_swappable_content')
-                let result = await Promise.all(offers.map(section => section.evaluate((el) => {
+                let result = await Promise.all(await worker.$$('div.offers_swappable_container > div.offers_swappable_content').then(sections => sections.map(section => section.evaluate((el) => {
                     let sections = el.querySelector('h2.retailer_offer_sections')
                     if (!sections) return []
 
@@ -221,17 +220,19 @@ async function run(mode: 'merchants' | 'offers') {
                     })
 
                     return offers
-                })))
-                result[merchant.retailer_id] = result.flat()
+                }))))
+
+                offers[merchant.retailer_id] = result.flat()
             }
+            logger.info({ idx }, "Worker finished")
         }))
 
         logger.info("Scraped merchant offers")
-        fs.writeFileSync(Files.offers, JSON.stringify(result, null, 2))
+        fs.writeFileSync(Files.offers, JSON.stringify(offers, null, 2))
 
         puppeteerInitialsedResult[0].close()
     } else {
-        logger.fatal({command: mode}, "Unknown command")
+        logger.fatal({ command: mode }, "Unknown command")
     }
 }
 
