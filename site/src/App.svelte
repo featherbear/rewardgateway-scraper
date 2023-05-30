@@ -139,14 +139,17 @@
   .searchContainer {
     position: sticky;
     top: 0;
-    background-color: white;
+
+    background-color: #3B3B3B;
+    @media (prefers-color-scheme: light) {
+      background-color: white;
+    }
     width: $clamping;
 
     > div {
       border: 1px solid black;
       display: flex;
       flex-direction: row;
-      background-color: white;
       // box-shadow: 0 10px 20px -8px #c5d6d6;
 
       .search {
@@ -208,10 +211,17 @@
         will-change: background-color;
         transition: background-color 0.1s;
         &:hover {
-          background-color: rgb(255, 233, 198) !important;
+          $baseColour: rgb(255, 233, 198);
+          background-color: darken($baseColour, 60%) !important;
+          @media (prefers-color-scheme: light) {
+            background-color: $baseColour !important;
+          }
         }
         &:nth-child(2n + 1) {
-          background-color: darken(white, 5%);
+          background-color: lighten(#3B3B3B, 5%);
+          @media (prefers-color-scheme: light) {
+            background-color: darken(white, 5%);
+          }
         }
       }
     }
